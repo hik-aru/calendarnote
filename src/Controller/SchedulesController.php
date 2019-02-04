@@ -2,6 +2,8 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\ORM\TableRegistry;
+use Cake\Error\Debugger;
 
 /**
  * Schedules Controller
@@ -12,9 +14,12 @@ use App\Controller\AppController;
  */
 class SchedulesController extends AppController
 {
+    public $autoRender= true;
+
     public function initialize()
     {
         parent::initialize();
+
         $this->loadComponent('Calendar');
     }
     /**
@@ -24,10 +29,15 @@ class SchedulesController extends AppController
      */
     public function index($scope='week')
     {
+        $this->viewBuilder()->autoLayout(true);
+        
         $times = $this->Calendar->scopeToTimes($scope);
-        $schedules = $this->Schedules->findByTimes($times);
+        $schedules = $this->findByTimes($times);
+        //Debugger::dump($schedules);
 
         $this->set(compact('schedules', 'scope', 'times'));
+        
+        
     }
 
     /**
@@ -55,7 +65,7 @@ class SchedulesController extends AppController
     {
         $schedule = $this->Schedules->newEntity();
         if ($this->request->is('post')) {
-            $schedule = $this->Schedules->patchEntity($schedule, $this->request->getData());
+            $schedule = $this->Schedules->newEntity($this->request->data);
             if ($this->Schedules->save($schedule)) {
                 $this->Flash->success(__('The schedule has been saved.'));
 
@@ -66,47 +76,20 @@ class SchedulesController extends AppController
         $this->set(compact('schedule'));
     }
 
-    /**
-     * Edit method
-     *
-     * @param string|null $id Schedule id.
-     * @return \Cake\Http\Response|null Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function edit($id = null)
+    public function findByTimes($times)
     {
-        $schedule = $this->Schedules->get($id, [
-            'contain' => []
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $schedule = $this->Schedules->patchEntity($schedule, $this->request->getData());
-            if ($this->Schedules->save($schedule)) {
-                $this->Flash->success(__('The schedule has been saved.'));
+        extract($times);
+        $from = date("Y-n-j H:i:s", $from_time);
+        $to = date("Y-n-j H:i:s", $to_time);
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The schedule could not be saved. Please, try again.'));
+        $record = $this->Schedules->find()
+                    ->where(['OR' => [ ['StartDate BETWEEN :from AND :to'], ['EndDate BETWEEN :from AND :to']] ])
+                    ->bind(':from', $from)
+                    ->bind(':to', $to)
+                    ->order(['StartDate'=>'ASC']);
+        foreach($record as $que){
+            debug($que->title);
         }
-        $this->set(compact('schedule'));
-    }
-
-    /**
-     * Delete method
-     *
-     * @param string|null $id Schedule id.
-     * @return \Cake\Http\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function delete($id = null)
-    {
-        $this->request->allowMethod(['post', 'delete']);
-        $schedule = $this->Schedules->get($id);
-        if ($this->Schedules->delete($schedule)) {
-            $this->Flash->success(__('The schedule has been deleted.'));
-        } else {
-            $this->Flash->error(__('The schedule could not be deleted. Please, try again.'));
-        }
-
-        return $this->redirect(['action' => 'index']);
+        return $record;
     }
 }

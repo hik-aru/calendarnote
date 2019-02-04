@@ -5,6 +5,8 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use Cake\Error\Debugger;
+
 
 /**
  * Schedules Model
@@ -53,14 +55,14 @@ class SchedulesTable extends Table
             ->allowEmptyString('id', 'create');
 
         $validator
-            ->dateTime('from')
-            ->requirePresence('from', 'create')
-            ->allowEmptyDateTime('from', false);
+            ->dateTime('StartDate')
+            ->requirePresence('StartDate', 'create')
+            ->allowEmptyDateTime('StartDate', false);
 
         $validator
-            ->dateTime('to')
-            ->requirePresence('to', 'create')
-            ->allowEmptyDateTime('to', false);
+            ->dateTime('EndDate')
+            ->requirePresence('EndDate', 'create')
+            ->allowEmptyDateTime('EndDate', false);
 
         $validator
             ->scalar('title')
@@ -74,18 +76,5 @@ class SchedulesTable extends Table
             ->allowEmptyString('contents', false);
 
         return $validator;
-    }
-
-    public function findByTimes($times)
-    {
-        extract($times);
-        $from = date("Y-n-j H:i:s", $from_time);
-        $to = date("Y-n-j H:i:s", $to_time);
-        $conditions = array('or' => array(
-            array("from BETWEEN ? AND ?" => array($from, $to)),
-            array("to BETWEEN ? AND ?" => array($from, $to))
-        ));
-        $order = 'from';
-        return $this->find('all', compact('conditions', 'order'));
     }
 }

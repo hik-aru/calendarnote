@@ -27,8 +27,8 @@ class Schedule extends Entity
      * @var array
      */
     protected $_accessible = [
-        'from' => true,
-        'to' => true,
+        'StartDate' => true,
+        'EndDate' => true,
         'title' => true,
         'contents' => true,
         'created' => true,

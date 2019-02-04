@@ -15,8 +15,8 @@
     <fieldset>
         <legend><?= __('Add Schedule') ?></legend>
         <?php
-            echo $this->Form->control('from');
-            echo $this->Form->control('to');
+            echo $this->Form->control('StartDate');
+            echo $this->Form->control('EndDate');
             echo $this->Form->control('title');
             echo $this->Form->control('contents');
         ?>
