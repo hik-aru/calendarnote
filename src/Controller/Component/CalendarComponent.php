@@ -17,26 +17,26 @@ class CalendarComponent extends Component
      */
     protected $_defaultConfig = [];
 
-    function scopeToTimes($scope){
-        $time = mktime(0,0,0);
+    function scopeToTimes($scope, $year, $month, $day){
+        $time = mktime(0,0,0,$month,$day,$year);
         switch($scope){
-            case 'month' :
-                $firstday = mktime(0,0,0,date('n'),1);
-                $from_time = mktime(0,0,0,date('n'),1 - date('w', $firstday), $year);
+            case 'month' : //指定月の初週の日曜日から、最終日の土曜日まで
+                $firstday = mktime(0,0,0,$month,1,$year);
+                $from_time = mktime(0,0,0,$month,1 - date('w', $firstday), $year);
                 $days = ceil((date('t', $time) + date('w', $firstday)) / 7) * 7;
                 break;
-            case 'day' :
+            case 'day' : //指定された日
                 $from_time = $time;
                 $days = 1;
                 break;
-            case 'week' :
+            case 'week' : //指定された日から1週間
             default :
                 $from_time = $time;
                 $days = 7;
                 $scope = 'week';
                 break;
         }
-        $to_time = $from_time + $days * DAY -1;
+        $to_time = $from_time + $days * DAY -1; //n日後の1秒前
 
         return compact('from_time', 'to_time');
     }

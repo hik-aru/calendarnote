@@ -19,7 +19,8 @@ class SchedulesController extends AppController
     public function initialize()
     {
         parent::initialize();
-
+        
+        $this->viewBuilder()->enableAutoLayout(true);
         $this->loadComponent('Calendar');
     }
     /**
@@ -27,17 +28,17 @@ class SchedulesController extends AppController
      *
      * @return \Cake\Http\Response|void
      */
-    public function index($scope='week')
+    public function index($scope='week', $year=false, $month=false, $day=false)
     {
-        $this->viewBuilder()->autoLayout(true);
+        if(!$year) $year = date('Y');
+		if(!$month) $month = date('m');
+        if(!$day) $day = date('d');
+        $current = sprintf("%d/%02d/%02d", $year, $month, $day);
+        $this->getRequest()->getSession()->write('SCHEDULE_INDEX_CONDITION', compact('scope', 'current'));
         
-        $times = $this->Calendar->scopeToTimes($scope);
+        $times = $this->Calendar->scopeToTimes($scope, $year, $month, $day);
         $schedules = $this->findByTimes($times);
-        //Debugger::dump($schedules);
-
-        $this->set(compact('schedules', 'scope', 'times'));
-        
-        
+        $this->set(compact('schedules', 'scope', 'times', 'current'));
     }
 
     /**
@@ -76,6 +77,22 @@ class SchedulesController extends AppController
         $this->set(compact('schedule'));
     }
 
+    public function edit($id = null)
+    {
+        $schedule = $this->Schedules->get($id, ['contain' => []]);
+        if($this->request->is(['patch', 'post', 'put'])){
+            $schedule = $this->Schedules->patchEntity($schedule, $this->request->data);
+            if($this->Schedules->save($schedule)){
+                $this->Flash->success(__('The book has been saved.'));
+                return $this->redirect(['action' => 'index']);
+            }else{
+                $this->Flash->error(__('The book could not be saved. Please, try again.'));
+            }
+        }
+        $this->set(compact('schedule'));
+        $this->set('_serialize', ['schedule']);
+    }
+
     public function findByTimes($times)
     {
         extract($times);
@@ -87,9 +104,20 @@ class SchedulesController extends AppController
                     ->bind(':from', $from)
                     ->bind(':to', $to)
                     ->order(['StartDate'=>'ASC']);
-        foreach($record as $que){
-            debug($que->title);
-        }
+
         return $record;
     }
+
+    function redirect($url, $status = null, $exit = true) {
+		if(is_array($url) && $url['action'] == 'index') {
+			$prev = $this->getRequest()->getSession()->read('SCHEDULE_INDEX_CONDITION');
+			if(!empty($prev)) {
+				extract($prev);
+				$url['action'] .= "/$scope";
+                $url[] = $current;
+			}
+		}
+		return parent::redirect($url, $status, $exit);
+	}
+
 }

@@ -5,6 +5,7 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use Cake\Datasource\ConnectionManager;
 use Cake\Error\Debugger;
 
 
@@ -57,12 +58,32 @@ class SchedulesTable extends Table
         $validator
             ->dateTime('StartDate')
             ->requirePresence('StartDate', 'create')
-            ->allowEmptyDateTime('StartDate', false);
+            ->allowEmptyDateTime('StartDate', false)
+            ->add('StartDate', 'custom',
+            [
+                'rule' => [$this, 'dateFormat'],
+                'message' => 'Please input in the date format.',
+            ])
+            ->add('EndDate', 'custom',
+            [
+                'rule' => [$this, 'compareFromTo'],
+                'message' => 'Start time should specify the past from finish time.',
+            ]);
+            /*->add('StartDate', 'custom',
+            [
+                'rule' => [$this, 'isDuplicate'],
+                'message' => 'There are already other schedules.',
+            ]);*/
 
         $validator
             ->dateTime('EndDate')
             ->requirePresence('EndDate', 'create')
-            ->allowEmptyDateTime('EndDate', false);
+            ->allowEmptyDateTime('EndDate', false)
+            ->add('EndDate', 'custom',
+            [
+                'rule' => [$this, 'dateFormat'],
+                'message' => 'Please input in the date format.',
+            ]);
 
         $validator
             ->scalar('title')
@@ -77,4 +98,36 @@ class SchedulesTable extends Table
 
         return $validator;
     }
+
+    function dateFormat($value){
+        Debugger::dump($value, 10); 
+        $value = array_shift($value);
+        $db = ConnectionManager::get($this->useDbConfig);
+        $format = $db->columns['datetime']['format'];
+        $dt = date($format, strtotime($value));
+        return $dt === $value;
+    }
+
+    function compareFromTo($value){
+        //$db = ConnectionManager::get($this->useDbConfig);
+        //$format = $db->columns['datetime']['format'];
+        //Debugger::dump($value, 10);
+        $from = strtotime($this->request->getData('Schedule.StartDate'));
+        $to = strtotime($this->request->getData('Schedule.EndDate'));
+        return $from <= $to;
+    }
+
+    /*function isDuplicate($value){
+        $from = $this->request->getData('Schedule.StartDate');
+        $to = $this->request->getData('Schedule.EndDate');
+        $conditions = array('or' => array(
+            array("StartDate BETWEEN ? AND ?" => array($from, $to)),
+            array("EndDate BETWEEN ? AND ?" => array($from, $to))
+        ));
+        if($this->id){
+            $conditions[$this->alias . '.' . $this->primaryKey] = '!= '.$this->id;
+        }
+        $count = $this->find('count', compact('condtions'));
+        return $count === 0;
+    }*/
 }

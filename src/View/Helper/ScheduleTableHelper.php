@@ -11,41 +11,44 @@ use Cake\Error\Debugger;
 class ScheduleTableHelper extends Helper
 {
 
-    public function initialize(array $config){
-		parent::initialize($config);
+	public $helpers = ['Html'];
+
+   function week($schedules, $times) {
+		$out = '';
+		$out = '<table class="week">';
+		$out .= '<thead>';
+		$out .= '<tr>';
+		for($time = $times['from_time']; $time < $times['to_time']; $time +=  DAY) {
+			$out .= '<td class="'.strftime('%a', $time).'">';
+			$out .= $this->dayLink($time);
+			$out .= '</td>';
+		}
+		$out .= '</tr>';
+		$out .= '</thead>';
+		$out .= '<tbody>';
+		$out .= '<tr>';
+		for($time = $times['from_time']; $time < $times['to_time']; $time +=  DAY) {
+			$schedule_data = '';
+			foreach($schedules as $schedule) {
+				if(date('Ymd', $time) >= date('Ymd', strtotime($schedule['StartDate']))
+				&& date('Ymd', $time) <= date('Ymd', strtotime($schedule['EndDate']))) {
+					$schedule_data .= $this->daySchedule($time, $schedule);
+					$schedule_data .= '<br />';
+				}
+			}
+			$out .= '<td class="'.strftime('%a', $time).'">';
+			$out .= $schedule_data;
+			if(empty($schedule_data)) {
+				$out .= '&nbsp;';
+			}
+			$out .= '</td>';
+		}
+		$out .= '</tr>';
+		$out .= '</tbody>';
+		$out .= '</table>';
+
+		return $out;
 	}
-
-    function week($schedules, $times){
-        $out = ''.'<table class="week">'.'<thread>'.'<tr>';
-        // 指定された週の日付を表示
-        for($time = $times['from_time']; $time < $times['to_time']; $time += DAY){
-            $out .= '<td class="'.strftime('%a', $time).'">'.
-                    strftime('%m/%d', $time).__(strftime('(%a)', $time), true).'</td>';
-        }
-        $out .= '</tr>'.'</thread>'.'<tbody>'.'<tr>';
-
-        //指定された週の日付の予定を表示
-        for($time = $times['from_time']; $time < $times['to_time']; $time += DAY){
-            $schedule_data = '';
-            foreach($schedules as $schedule){
-                if(date('Ymd', $time) >= date('Ymd', strtotime($schedule['Schedule']['StartDate'])) &&
-                   date('Ymd', $time) <= date('Ymd'. strtotime($schedule['Schedule']['EndDate']))){
-                       //表示する日付に予定がある場合は予定内容をschedule_dataに追加
-                       $schedule_data .= $this->daySchedule($time, $schedule);
-                       $schedule_data .= '<br />';
-                }
-            }
-            $out .= '<td class="'.strftime('%a', $time).'">'.
-                    '$schedule_data';
-            if(empty($schedule_data)){
-                $out .= '&nbsp';
-            }
-            $out .= '</td>';
-        }
-        $out .= '</tr>'.'</tbody>'.'</table>';
-
-        return $out;
-    }
 
     function month($schedules, $times) {
 		$out = '';
@@ -54,8 +57,8 @@ class ScheduleTableHelper extends Helper
 		for($time = $times['from_time']; $time < $times['to_time']; $time +=  DAY) {
 			$schedule_data = '';
 			foreach($schedules as $schedule) {
-				if(date('Ymd', $time) >= date('Ymd', strtotime($schedule['Schedule']['StartDate']))
-				&& date('Ymd', $time) <= date('Ymd', strtotime($schedule['Schedule']['EndDate']))) {
+				if(date('Ymd', $time) >= date('Ymd', strtotime($schedule['StartDate']))
+				&& date('Ymd', $time) <= date('Ymd', strtotime($schedule['EndDate']))) {
 					$schedule_data .= $this->daySchedule($time, $schedule);
 					$schedule_data .= '<br />';
 				}
@@ -67,8 +70,7 @@ class ScheduleTableHelper extends Helper
 			$out .= '<table class="day_in_month">';
 			$out .= '<tr>';
 			$out .= '<th>';
-			$out .= strftime('%m/%d', $time);
-			$out .= __(strftime('(%a)', $time), true);
+			$out .= $this->dayLink($time);
 			$out .= '</th>';
 			$out .= '</tr>';
 			$out .= '<tr>';
@@ -115,12 +117,12 @@ class ScheduleTableHelper extends Helper
 		$time = $times['from_time'];
 		foreach($schedules as $schedule) {
             //表示する予定がある場合は、予定内容をschedule_dateに追加
-			if(date('YmdHi', $time) < date('YmdHi', strtotime($schedule['Schedule']['StartDate']))) {
-				$schedule_data .= $this->emptyTime($time, strtotime($schedule['Schedule']['StartDate']));
+			if(date('YmdHi', $time) < date('YmdHi', strtotime($schedule['StartDate']))) {
+				$schedule_data .= $this->emptyTime($time, strtotime($schedule['StartDate']));
             }
             //スケジュールが始まるまでの時間分、空のレーンを前に追加する
 			$schedule_data .= $this->timeSchedule($schedule, $times['from_time'], $times['to_time']);
-			$time = strtotime($schedule['Schedule']['EndDate']);
+			$time = strtotime($schedule['EndDate']);
 		}
 		$out .= $schedule_data;
 		if($time < $times['to_time']) {
@@ -135,12 +137,11 @@ class ScheduleTableHelper extends Helper
     
     private function daySchedule($target, $schedule) {
 		$out = sprintf('%s-%s %s',
-			$this->dateOrTime($target, $schedule['Schedule']['StartDate']),
-			$this->dateOrTime($target, $schedule['Schedule']['EndDate']),
-			$schedule['Schedule']['title']
+			$this->dateOrTime($target, $schedule['StartDate']),
+			$this->dateOrTime($target, $schedule['EndDate']),
+			$schedule['title']
 		);
-		Debugger::dump($schedule, 10);
-		$out = $this->Html->link($out, ['action'=>'edit', 'id'=>$schedule['Schedule']['id']]);
+		$out = $this->Html->link($out, ['action'=>'edit', $schedule['id']]);
 		return $out;
 	}
 	
@@ -157,18 +158,96 @@ class ScheduleTableHelper extends Helper
 		$out = sprintf('<td colspan="%s" class="empty">&nbsp;</td>', $colspan);
 		return $out;
 	}
+
 	private function timeSchedule($schedule, $mintime, $maxtime) {
-		$from = max(strtotime($schedule['Schedule']['StartDate']), $mintime);
-		$to = min(strtotime($schedule['Schedule']['EndDate']), $maxtime);
+		$from = max(strtotime($schedule['StartDate']), $mintime);
+		$to = min(strtotime($schedule['EndDate']), $maxtime);
 		$colspan = ceil(($to - $from) / (MINUTE*10));
 		$out = sprintf('<td colspan="%d">', $colspan);
 		$out .= sprintf('%s-%s %s',
-			$this->dateOrTime($maxtime, $schedule['Schedule']['StartDate']),
-			$this->dateOrTime($maxtime, $schedule['Schedule']['EndDate']),
-			$schedule['Schedule']['title']
+			$this->dateOrTime($maxtime, $schedule['StartDate']),
+			$this->dateOrTime($maxtime, $schedule['EndDate']),
+			$schedule['title']
 		);
 		$out .= '</td>';
 		return $out;
 	}
+
+	private function dayLink($time){
+		$out = strftime('%m/%d', $time).__(strftime('(%a)', $time), true);
+		$out = $this->Html->link($out, ['action'=>'index/day', date('Y/m/d', $time)]);
+		return $out;
+	}
+
+	//***************************************************************
+	// Menu Navigations 
+	//***************************************************************
+	function navi($controller, $scope, $current) {
+		$method = $scope.'_navi';
+		return $this->$method($controller, $current);
+	}
+	function month_navi($controller, $current) {
+		$out = '<ul>';
+		list($year, $month, $day) = explode('/', $current);
+		$out .= sprintf('<li><a href="/calendarnote/%s/index/month/%s">%s</a></li>',
+				$controller,
+				date('Y/m', mktime(0,0,0,$month-1,1,$year)),
+				__('Last month', true));
+		$out .= sprintf('<li><a href="/calendarnote/%s/index/month/%s">%s</a></li>',
+				$controller,
+				date('Y/m'),
+				__('This month', true));
+		$out .= sprintf('<li><a href="/calendarnote/%s/index/month/%s">%s</a></li>',
+				$controller,
+				date('Y/m', mktime(0,0,0,$month+1,1,$year)),
+				__('Next month', true));
+		$out .= '</ul>';
+		return $out;
+	}
+	function week_navi($controller, $current) {
+		$out = '<ul>';
+		list($year, $month, $day) = explode('/', $current);
+		$out .= sprintf('<li><a href="/calendarnote/%s/index/week/%s">%s</a></li>',
+				$controller,
+				date('Y/m/d', mktime(0,0,0,$month,$day-7,$year)),
+				__('Last week', true));
+		$out .= sprintf('<li><a href="/calendarnote/%s/index/week/%s">%s</a></li>',
+				$controller,
+				date('Y/m/d', mktime(0,0,0,$month,$day-1,$year)),
+				__('Previous day', true));
+		$out .= sprintf('<li><a href="/calendarnote/%s/index/week/%s">%s</a></li>',
+				$controller,
+				date('Y/m/d'),
+				__('This week', true));
+		$out .= sprintf('<li><a href="/calendarnote/%s/index/week/%s">%s</a></li>',
+				$controller,
+				date('Y/m/d', mktime(0,0,0,$month,$day+1,$year)),
+				__('Next day', true));
+		$out .= sprintf('<li><a href="/calendarnote/%s/index/week/%s">%s</a></li>',
+				$controller,
+				date('Y/m/d', mktime(0,0,0,$month,$day+7,$year)),
+				__('Next week', true));
+		$out .= '</ul>';
+		return $out;
+	}
+	function day_navi($controller, $current) {
+		$out = '<ul>';
+		list($year, $month, $day) = explode('/', $current);
+		$out .= sprintf('<li><a href="/calendarnote/%s/index/day/%s">%s</a></li>',
+				$controller,
+				date('Y/m/d', mktime(0,0,0,$month,$day-1,$year)),
+				__('Previous day', true));
+		$out .= sprintf('<li><a href="/calendarnote/%s/index/day/%s">%s</a></li>',
+				$controller,
+				date('Y/m/d'),
+				__('Today', true));
+		$out .= sprintf('<li><a href="/calendarnote/%s/index/day/%s">%s</a></li>',
+				$controller,
+				date('Y/m/d', mktime(0,0,0,$month,$day+1,$year)),
+				__('Next day', true));
+		$out .= '</ul>';
+		return $out;
+	}
+
 
 }
