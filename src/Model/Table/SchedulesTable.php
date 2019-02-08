@@ -5,7 +5,7 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
-use Cake\Datasource\ConnectionManager;
+use Cake\Routing\Router;
 use Cake\Error\Debugger;
 
 
@@ -51,45 +51,30 @@ class SchedulesTable extends Table
      */
     public function validationDefault(Validator $validator)
     {
-        $validator
-            ->integer('id')
-            ->allowEmptyString('id', 'create');
 
         $validator
-            ->dateTime('StartDate')
-            ->requirePresence('StartDate', 'create')
-            ->allowEmptyDateTime('StartDate', false)
+          
             ->add('StartDate', 'custom',
-            [
-                'rule' => [$this, 'dateFormat'],
-                'message' => 'Please input in the date format.',
-            ])
-            ->add('EndDate', 'custom',
             [
                 'rule' => [$this, 'compareFromTo'],
                 'message' => 'Start time should specify the past from finish time.',
-            ]);
-            /*->add('StartDate', 'custom',
+            ])
+            ->add('StartDate', 'custom',
             [
                 'rule' => [$this, 'isDuplicate'],
                 'message' => 'There are already other schedules.',
-            ]);*/
+            ]);
 
         $validator
             ->dateTime('EndDate')
             ->requirePresence('EndDate', 'create')
-            ->allowEmptyDateTime('EndDate', false)
-            ->add('EndDate', 'custom',
-            [
-                'rule' => [$this, 'dateFormat'],
-                'message' => 'Please input in the date format.',
-            ]);
+            ->allowEmptyDateTime('EndDate', false);
 
         $validator
+            ->notEmpty('title')
             ->scalar('title')
             ->maxLength('title', 100)
-            ->requirePresence('title', 'create')
-            ->allowEmptyString('title', false);
+            ->requirePresence('title', 'create');
 
         $validator
             ->scalar('contents')
@@ -99,35 +84,33 @@ class SchedulesTable extends Table
         return $validator;
     }
 
-    function dateFormat($value){
-        Debugger::dump($value, 10); 
-        $value = array_shift($value);
-        $db = ConnectionManager::get($this->useDbConfig);
-        $format = $db->columns['datetime']['format'];
-        $dt = date($format, strtotime($value));
-        return $dt === $value;
-    }
-
     function compareFromTo($value){
-        //$db = ConnectionManager::get($this->useDbConfig);
-        //$format = $db->columns['datetime']['format'];
-        //Debugger::dump($value, 10);
-        $from = strtotime($this->request->getData('Schedule.StartDate'));
-        $to = strtotime($this->request->getData('Schedule.EndDate'));
+        $from = $this->getUnixTime($value);
+        $to = $this->getUnixTime(Router::getRequest()->data('EndDate'));
+        
         return $from <= $to;
     }
 
-    /*function isDuplicate($value){
-        $from = $this->request->getData('Schedule.StartDate');
-        $to = $this->request->getData('Schedule.EndDate');
-        $conditions = array('or' => array(
-            array("StartDate BETWEEN ? AND ?" => array($from, $to)),
-            array("EndDate BETWEEN ? AND ?" => array($from, $to))
-        ));
-        if($this->id){
-            $conditions[$this->alias . '.' . $this->primaryKey] = '!= '.$this->id;
-        }
-        $count = $this->find('count', compact('condtions'));
+    function isDuplicate($value){
+        $from = $this->getUnixTime($value);
+        $to = $this->getUnixTime(Router::getRequest()->data('EndDate'));
+
+        $count = $this->find()
+                        ->where(['OR' => [ ['StartDate BETWEEN :from AND :to'], ['EndDate BETWEEN :from AND :to']] ])
+                        ->bind(':from', $from)
+                        ->bind(':to', $to)
+                        ->count();
+
         return $count === 0;
-    }*/
+    }
+
+    function getUnixTime($date){
+        $tmpDate = '';
+
+        foreach($date as $d){
+            $tmpDate .= $d;
+        }
+
+        return date("Y-n-j H:i:s", strtotime($tmpDate));
+    }
 }

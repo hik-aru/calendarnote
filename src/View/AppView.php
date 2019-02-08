@@ -38,6 +38,6 @@ class AppView extends View
     {
         parent::initialize();
         $this->loadHelper('ScheduleTable');
-        //$this->loadHelper('AppForm');
+        $this->loadHelper('AppForm');
     }
 }

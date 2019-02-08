@@ -66,7 +66,9 @@ class SchedulesController extends AppController
     {
         $schedule = $this->Schedules->newEntity();
         if ($this->request->is('post')) {
-            $schedule = $this->Schedules->newEntity($this->request->data);
+            $schedule = $this->Schedules->newEntity($this->request->getData());
+            Debugger::dump($schedule, 10);
+
             if ($this->Schedules->save($schedule)) {
                 $this->Flash->success(__('The schedule has been saved.'));
 
@@ -81,16 +83,31 @@ class SchedulesController extends AppController
     {
         $schedule = $this->Schedules->get($id, ['contain' => []]);
         if($this->request->is(['patch', 'post', 'put'])){
-            $schedule = $this->Schedules->patchEntity($schedule, $this->request->data);
+            $schedule = $this->Schedules->patchEntity($schedule, $this->request->getData());
+            Debugger::dump($schedule,10);
+
             if($this->Schedules->save($schedule)){
-                $this->Flash->success(__('The book has been saved.'));
+                $this->Flash->success(__('The schedule has been updated.'));
                 return $this->redirect(['action' => 'index']);
             }else{
-                $this->Flash->error(__('The book could not be saved. Please, try again.'));
+                $this->Flash->error(__('The shcedule could not be update. Please, try again.'));
             }
         }
         $this->set(compact('schedule'));
         $this->set('_serialize', ['schedule']);
+    }
+
+    public function delete($id = null)
+    {
+        //$this->request->allowMethod(['post', 'delete']);
+        $schedule = $this->Schedules->get($id);
+        Debugger::dump($schedule);
+        if($this->Schedules->delete($schedule)){
+            $this->Flash->success(__('The {0} article has been deleted.', $schedule->title));
+            return $this->redirect(['action' => 'index']);
+        }else{
+            $this->Flash->error(__('The schedule could not be deleted. Please, try again.'));
+        }
     }
 
     public function findByTimes($times)
@@ -108,7 +125,7 @@ class SchedulesController extends AppController
         return $record;
     }
 
-    function redirect($url, $status = null, $exit = true) {
+    public function redirect($url, $status = null, $exit = true) {
 		if(is_array($url) && $url['action'] == 'index') {
 			$prev = $this->getRequest()->getSession()->read('SCHEDULE_INDEX_CONDITION');
 			if(!empty($prev)) {
@@ -118,6 +135,6 @@ class SchedulesController extends AppController
 			}
 		}
 		return parent::redirect($url, $status, $exit);
-	}
+    }
 
 }

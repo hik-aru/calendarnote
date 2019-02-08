@@ -1,15 +1,11 @@
-<?php
-    echo($this->AppForm->create('Schedule'));
-    echo($this->AppForm->input('StartDate', ['type'=>'datetime']));
-    echo($this->AppForm->input('EndDate', ['type'=>'datetime']));
-    echo($this->AppForm->input('title'));
-    echo($this->AppForm->input('contents'));
-?>
+
+<?= $this->AppForm->create('Schedule') ?>
+<?= $this->AppForm->input('StartDate', ['type'=>'datetime']) ?>
+<?= $this->AppForm->input('EndDate', ['type'=>'datetime']) ?>
+<?= $this->AppForm->input('title') ?>
+<?= $this->AppForm->input('contents', ['rows'=>'3']) ?>
+
 <tr><td colspan="2">
-<?php
-    echo($this->AppForm->submit());
-?>
+<?= $this->AppForm->submit() ?>
 </td></tr>
-<?php
-    echo($this->AppForm->end());
-?>
+<?= $this->AppForm->end() ?>

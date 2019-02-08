@@ -7,8 +7,8 @@ use Cake\ORM\Entity;
  * Schedule Entity
  *
  * @property int $id
- * @property \Cake\I18n\FrozenTime $from
- * @property \Cake\I18n\FrozenTime $to
+ * @property \Cake\I18n\FrozenTime $StartDate
+ * @property \Cake\I18n\FrozenTime $EndDate
  * @property string $title
  * @property string $contents
  * @property \Cake\I18n\FrozenTime|null $created
@@ -27,6 +27,7 @@ class Schedule extends Entity
      * @var array
      */
     protected $_accessible = [
+        'id' => true,
         'StartDate' => true,
         'EndDate' => true,
         'title' => true,
