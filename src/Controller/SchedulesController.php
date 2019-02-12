@@ -67,7 +67,6 @@ class SchedulesController extends AppController
         $schedule = $this->Schedules->newEntity();
         if ($this->request->is('post')) {
             $schedule = $this->Schedules->newEntity($this->request->getData());
-            Debugger::dump($schedule, 10);
 
             if ($this->Schedules->save($schedule)) {
                 $this->Flash->success(__('The schedule has been saved.'));
@@ -84,7 +83,7 @@ class SchedulesController extends AppController
         $schedule = $this->Schedules->get($id, ['contain' => []]);
         if($this->request->is(['patch', 'post', 'put'])){
             $schedule = $this->Schedules->patchEntity($schedule, $this->request->getData());
-            Debugger::dump($schedule,10);
+            //Debugger::dump($schedule,10);
 
             if($this->Schedules->save($schedule)){
                 $this->Flash->success(__('The schedule has been updated.'));
@@ -100,8 +99,10 @@ class SchedulesController extends AppController
     public function delete($id = null)
     {
         //$this->request->allowMethod(['post', 'delete']);
+        $res = $this->request->getData();
+        Debugger::dump($res);
+        
         $schedule = $this->Schedules->get($id);
-        Debugger::dump($schedule);
         if($this->Schedules->delete($schedule)){
             $this->Flash->success(__('The {0} article has been deleted.', $schedule->title));
             return $this->redirect(['action' => 'index']);

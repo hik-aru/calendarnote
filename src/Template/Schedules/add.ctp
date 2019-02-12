@@ -1,5 +1,5 @@
 
-<?= $this->AppForm->create('Schedule') ?>
+<?= $this->AppForm->create($schedule) ?>
 <?= $this->AppForm->input('StartDate', ['type'=>'datetime']) ?>
 <?= $this->AppForm->input('EndDate', ['type'=>'datetime']) ?>
 <?= $this->AppForm->input('title') ?>

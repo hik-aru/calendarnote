@@ -1,6 +1,5 @@
 
-<?= $this->AppForm->create('Schedule') ?>
-<?= $this->AppForm->hidden('id') ?>
+<?= $this->AppForm->create($schedule) ?>
 <?= $this->AppForm->input('StartDate', ['type'=>'datetime']) ?>
 <?= $this->AppForm->input('EndDate', ['type'=>'datetime']) ?>
 <?= $this->AppForm->input('title') ?>
@@ -8,7 +7,10 @@
 
 <tr><td colspan="2">
 <?= $this->AppForm->submit(__('Save', true), ['div'=>false]) ?>
-<?= $this->AppForm->delete_button('calendarnote/schedules/delete/'.$this->request->data('id')) ?>
+
+<input type="button" onclick="location.href='../delete/<?= $schedule['id'] ?>'" value="Delete">
 
 </td></tr>
+
 <?= $this->AppForm->end() ?>
+

@@ -58,11 +58,6 @@ class SchedulesTable extends Table
             [
                 'rule' => [$this, 'compareFromTo'],
                 'message' => 'Start time should specify the past from finish time.',
-            ])
-            ->add('StartDate', 'custom',
-            [
-                'rule' => [$this, 'isDuplicate'],
-                'message' => 'There are already other schedules.',
             ]);
 
         $validator

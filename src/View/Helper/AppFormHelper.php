@@ -65,19 +65,4 @@ class AppFormHelper extends FormHelper
 		$out .= parent::end();
 		return $out;
 	}
-
-	function delete_button($url){
-		$out = $this->button(__('Delete', true), ['onclick'=>'javascript:delete_submit(\''.__('Are you sure you want to delete', true).'\', \''.$url.'\');']);
-		$script = '
-			function delete_submit(confirm, url){
-				if(window.confirm(confirm)){
-					location.href = url;
-				}
-			}
-		';
-		$this->Html->scriptStart(['block'=>true]);
-		echo $script;
-		$this->Html->ScriptEnd();
-		return $out;
-	}
 }
