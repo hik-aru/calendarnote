@@ -53,7 +53,6 @@ class SchedulesTable extends Table
     {
 
         $validator
-          
             ->add('StartDate', 'custom',
             [
                 'rule' => [$this, 'compareFromTo'],
@@ -63,7 +62,12 @@ class SchedulesTable extends Table
         $validator
             ->dateTime('EndDate')
             ->requirePresence('EndDate', 'create')
-            ->allowEmptyDateTime('EndDate', false);
+            ->allowEmptyDateTime('EndDate', false)
+            ->add('EndDate', 'custom',
+            [
+                'rule' => [$this, 'isDuplicate'],
+                'message' => 'There are already other schedules.',
+            ]);
 
         $validator
             ->notEmpty('title')

@@ -1,7 +1,7 @@
 @charset "utf-8";
 
 body {
-    background-color:ivory;
+	background-color:ivory;
 }
 
 form table.form {
@@ -43,4 +43,81 @@ div.error-message {
 	color: red;
 	padding-left:1em;
 	font-size:90%;
+}
+/* scaffold.index */
+div.index {
+	position : relative;
+	background-color : white;
+	margin:2px;
+	border:1px solid gray;
+	font-size : 8pt;
+}
+div.index h2 {
+	font-size : 12pt;
+	font-weight: bold;
+	background-color : mistyrose;
+	border-bottom:1px solid gray;
+}
+div.index p {
+	margin-left : 1em;
+}
+div.index table {
+	border : 1px solid gray;
+	border-collapse: collapse;
+	margin-top : 1em;
+	margin-left : 1em;
+}
+div.index table th,
+div.index table td
+{
+	border : 1px solid gray;
+	vertical-align:top;
+	padding:3px;
+}
+div.index div.paging {
+	margin-left : 1em;
+}
+div.index div.paging div {
+	display:inline;
+}
+div.actions ul {
+	margin-left : 1em;
+	padding: 0;
+}
+div.actions li {
+	display: inline;
+	list-style-type: none;
+	line-height: 2em;
+	margin: 0 2em 0 0;
+	white-space: nowrap;
+}
+
+/* scaffold.view */
+div.view {
+	position : relative;
+	background-color : white;
+	margin:2px;
+	border:1px solid gray;
+	font-size : 8pt;
+}
+div.view h2 {
+	font-size : 12pt;
+	font-weight: bold;
+	background-color : mistyrose;
+	border-bottom:1px solid gray;
+}
+div.view table {
+	background-color:white;
+	border: 1px solid gray;
+	border-collapse: collapse;
+	margin:5px;
+}
+div.view table th,
+div.view table td
+{
+	border: 1px solid gray;
+	padding:5px;
+}
+div.view table th {
+	background-color:lightgrey;
 }

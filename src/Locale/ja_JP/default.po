@@ -452,3 +452,14 @@ msgstr ""
 msgid "December"
 msgstr ""
 
+msgid "Groups"
+msgstr "グループ"
+
+msgid "Page {{page}} of {{pages}}, showing {{current}} records out of {{count}} total, starting on record {{start}}, ending on {{end}}"
+msgstr "ページ( {{page}} / {{pages}} ), 表示件数 {{current}}件, 全件数 {{count}}, {{start}} ~ {{end}} 件目まで表示中"
+
+msgid "Group Name"
+msgstr "グループ名"
+
+msgid "New Group"
+msgstr "グループを登録する"
