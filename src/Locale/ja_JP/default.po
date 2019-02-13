@@ -455,11 +455,50 @@ msgstr ""
 msgid "Groups"
 msgstr "グループ"
 
-msgid "Page {{page}} of {{pages}}, showing {{current}} records out of {{count}} total, starting on record {{start}}, ending on {{end}}"
-msgstr "ページ( {{page}} / {{pages}} ), 表示件数 {{current}}件, 全件数 {{count}}, {{start}} ~ {{end}} 件目まで表示中"
+#: msgid "Page {{page}} of {{pages}}, showing {{current}} records out of {{count}} total, starting on record {{start}}, ending on {{end}}"
+#: msgstr "ページ( {{page}} / {{pages}} ), 表示件数 {{current}}件, 全件数 {{count}}, {{start}} ~ {{end}} 件目まで表示中"
 
 msgid "Group Name"
 msgstr "グループ名"
 
 msgid "New Group"
 msgstr "グループを登録する"
+
+msgid "Memo"
+msgstr "メモ"
+
+msgid "The same group name exists."
+msgstr "同一のグループ名が存在します"
+
+msgid "Group"
+msgstr "グループ"
+
+msgid "Users"
+msgstr "ユーザ"
+
+msgid "Login Name"
+msgstr "ログイン名"
+
+msgid "Fullname"
+msgstr "ユーザ名"
+
+msgid "Email"
+msgstr "メールアドレス"
+
+msgid "Tel"
+msgstr "電話番号"
+
+msgid "New User"
+msgstr "ユーザを登録する"
+
+msgid "Password"
+msgstr "パスワード"
+
+msgid "Password (for a check)"
+msgstr "パスワード（確認用）"
+
+msgid "User"
+msgstr "ユーザ"
+
+msgid ""
+msgstr ""

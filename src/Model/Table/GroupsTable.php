@@ -61,14 +61,14 @@ class GroupsTable extends Table
             ->allowEmptyString('id', 'create');
 
         $validator
-            ->scalar('name')
-            ->maxLength('name', 50)
-            ->requirePresence('name', 'create')
-            ->allowEmptyString('name', false);
+            ->requirePresence('name', true)
+            ->allowEmptyString('name', false)
+            ->add('name', [
+                'unique' => ['rule' => 'validateUnique', 'provider' => 'table', 'message' => 'The same group name exists.']
+            ]);
 
         $validator
-            ->scalar('memo')
-            ->allowEmptyString('memo');
+            ->requirePresence('memo', true);
 
         return $validator;
     }
