@@ -13,6 +13,11 @@ use App\Controller\AppController;
 class UsersController extends AppController
 {
 
+    public function initialize()
+    {
+        parent::initialize();
+        $this->loadComponent('Confirm');
+    }
     /**
      * Index method
      *
@@ -20,6 +25,7 @@ class UsersController extends AppController
      */
     public function index()
     {
+        $this->getRequest()->getSession()->delete('ConfirmComponent.Data');
         $users = $this->paginate($this->Users);
 
         $this->set(compact('users'));
@@ -46,15 +52,14 @@ class UsersController extends AppController
      */
     public function add()
     {
+        $this->getRequest()->getSession()->write('ConfirmComponent.Data', 'pass');
         $user = $this->Users->newEntity();
         if ($this->request->is('post')) {
-            $user = $this->Users->patchEntity($user, $this->request->getData());
-            if ($this->Users->save($user)) {
-                $this->Flash->success(__('The user has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
+            if ($this->request->data['mode'] === 'confirm'){
+                if($this->Confirm->checkToken()){
+                    $this->render('confirm');
+                }
             }
-            $this->Flash->error(__('The user could not be saved. Please, try again.'));
         }
         $groups = $this->Users->Groups->find('list', ['limit' => 200]);
         $schedules = $this->Users->Schedules->find('list', ['limit' => 200]);
@@ -103,5 +108,16 @@ class UsersController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
+    }
+
+    public function newUser(){
+        $user = $this->Users->newEntity($this->request->getData());
+                if ($this->Users->save($user)) {
+                    $this->Flash->success(__('The user has been saved.'));
+
+                    return $this->redirect(['action' => 'index']);
+                }
+                $this->Flash->error(__('The user could not be saved. Please, try again.'));
+                return $this->redirect(['action' => 'add']);
     }
 }

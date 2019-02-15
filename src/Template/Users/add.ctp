@@ -7,10 +7,11 @@
 <?= $this->AppForm->input('email') ?>
 <?= $this->AppForm->input('tel') ?>
 <?= $this->AppForm->input('memo') ?>
+<?= $this->AppForm->hidden('mode', ['value' => 'confirm']) ?>
 
 <tr><td colspan="2" class="buttons">
 
-<?= $this->AppForm->submit(__('Save',true), array('div'=>false)) ?>
+<?= $this->AppForm->submit(__('Confirm',true), array('div'=>false)) ?>
 
 </td></tr>
 

@@ -21,6 +21,7 @@ class SchedulesController extends AppController
         parent::initialize();
         
         $this->viewBuilder()->enableAutoLayout(true);
+        $this->loadComponent('AppSecurity');
         $this->loadComponent('Calendar');
     }
     /**
